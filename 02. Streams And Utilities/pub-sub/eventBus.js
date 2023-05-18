@@ -1,7 +1,8 @@
 const listeners = {};
-
-const publish = (eventName) => {
-    listeners[eventName].forEach(listener => listener());
+                          //rest operator
+const publish = (eventName, ...eventData) => {
+    //optional chaning  |                            spred operator
+    listeners[eventName]?.forEach(listener => listener(...eventData));
 
 };
 
@@ -10,6 +11,11 @@ const subscribe = (eventName, eventListener) => {
         listeners[eventName] = [];
     }
     listeners[eventName].push(eventListener);
+
+    return () => {
+        console.log('Unsubscribed');
+        listeners[eventName] = listeners[eventName].filter(x => x != eventListener);
+    }
 
 };
 
