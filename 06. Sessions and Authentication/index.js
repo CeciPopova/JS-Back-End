@@ -1,19 +1,32 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
+const expressSession = require('express-session');
 const { v4:uuid } = require('uuid');
 
 const app = express();
 
+app.use(cookieParser());
+app.use(expressSession({
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {secure: true},
+}));
+
 app.get('/', (req, res) => {
-    let id = uuid();
+    let id;
 
-    const cookie = req.header('Cookie');
+    const userId = req.cookies['userId'];
+   
 
-    if (cookie) {
-        const [key, value] = cookie.split('=');
-        id = value;
-
+    if (userId) {
+        id = userId;
+        console.log(req.session.secret);
     } else {
-        res.header('Set-Cookie', `userId=${id}`);
+        id = uuid();
+        
+       req.session.secret = `${id} - some secret`
+       res.cookie('userId', id, { httpOnly: true });
     }
     
     res.send(`Hello user - ${id}`);
