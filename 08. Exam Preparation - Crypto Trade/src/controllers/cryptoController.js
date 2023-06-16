@@ -17,10 +17,10 @@ router.get('/create', isAuth, (req, res) => {
 
 router.post('/create', isAuth, async (req, res) => {
     const cryptoData = req.body;
-    
+   
    
     try {
-        await cryptoManager.create(cryptoData);
+        await cryptoManager.create(req.user._id, cryptoData);
 
         res.redirect('/crypto/catalog');
 
@@ -30,42 +30,49 @@ router.post('/create', isAuth, async (req, res) => {
     }
 });
 
-// router.get('/:photoId/details', async (req, res) => {
-//     const photoId = req.params.photoId;
-//     const photo = await cryptoManager.getOne(photoId).populate('comments.user').lean();
-//     const isOwner = req.user?._id == photo.owner._id;
+router.get('/:cryptoId/details', async (req, res) => {
+    const cryptoId = req.params.cryptoId;
+    const crypto = await cryptoManager.getOne(cryptoId).lean();
+   
+    const isOwner = req.user?._id == crypto.owner;
 
-//     res.render('photos/details', { photo, isOwner });
-// });
+    res.render('crypto/details', { crypto, isOwner });
+});
 
-// router.get('/:photoId/delete', isAuth,async (req, res) => {
-//     const photoId = req.params.photoId;
+router.get('/:cryptoId/delete', isAuth,async (req, res) => {
+    const cryptoId = req.params.cryptoId;
 
-//     try {
-//         await cryptoManager.delete(photoId);
+    try {
+        await cryptoManager.delete(cryptoId);
 
-//         res.redirect('/photos')
-//     } catch (err) {
-//         res.render(`/photos/details`, { error: 'Unsuccessful photo deletion!' });
-//     }
-// });
+        res.redirect('/crypto/catalog')
+    } catch (err) {
+        res.render(`/crypto/details`, { error: 'Unsuccessful photo deletion!' });
+    }
+});
 
-// router.get('/:photoId/edit', isAuth, async (req, res) => {
-//     const photo = await cryptoManager.getOne(req.params.photoId).lean();
+router.get('/:cryptoId/edit', isAuth, async (req, res) => {
+    const crypto = await cryptoManager.getOne(req.params.cryptoId).lean();
 
-//     res.render('photos/edit', { photo });
-// });
+    res.render('crypto/edit', { crypto });
+});
 
-// router.post('/:photoId/edit', isAuth, async (req, res) => {
-//     const photoId = req.params.photoId;
-//     const photoData = req.body;
-//     try {
-//         await cryptoManager.edit(photoId, photoData);
-//         res.redirect(`/photos/${photoId}/details`);
-//     } catch (err) {
-//         res.render('photos/edit', { error: 'Unable to update photo', ...photoData });
-//     }
-// });
+router.post('/:cryptoId/edit', isAuth, async (req, res) => {
+    const cryptoId = req.params.cryptoId;
+    const cryptoData = req.body;
+   console.log(cryptoId);
+   console.log(cryptoData);
+    try {
+        await cryptoManager.edit(cryptoId, cryptoData);
+        res.redirect(`/crypto/${cryptoId}/details`);
+    } catch (err) {
+        res.render('crypto/edit', { error: 'Unable to update coin', ...cryptoData });
+    }
+});
+
+router.get('/search', isAuth, (req, res) => {
+    res.render('crypto/search');
+});
 
 // router.post('/:photoId/comments', isAuth, async (req, res) => {
 //     const photoId = req.params.photoId;

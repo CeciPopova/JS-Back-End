@@ -14,7 +14,7 @@ const cryptoSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: [true, 'Age is required!'],
+        required: [true, 'Price is required!'],
         min: 1,
         max: 100,
     },
@@ -26,14 +26,14 @@ const cryptoSchema = new mongoose.Schema({
     },
     payment: {
         type: String,
-        required: [true, 'Location is required!'],
-        minLength: 5,
-        maxLength: 50,
+        enum: ['crypto-wallet', 'credit-card', 'debit-card', 'paypal'],
+        required: [true, 'Payment is required!'],
+        
     },
-    // owner: {
-    //     type: mongoose.Types.ObjectId,
-    //     ref: 'User',
-    // },
+     owner: {
+         type: mongoose.Types.ObjectId,
+         ref: 'User',
+     },
     // buy: {
     //     type: [],
     //     ref: 'User',

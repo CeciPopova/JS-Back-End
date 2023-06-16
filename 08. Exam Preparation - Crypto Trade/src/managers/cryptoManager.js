@@ -1,10 +1,10 @@
 const Crypto = require('../models/Crypto');
 
-exports.create = (cryptoData) => Crypto.create(cryptoData);
+exports.create = (ownerId, cryptoData) => Crypto.create({...cryptoData, owner: ownerId});
 
 exports.getAll  = () => Crypto.find();//.populate('owner');
 
-exports.getOne = (cryptoId) => Crypto.findById(cryptoId);//.populate('owner');
+exports.getOne = (cryptoId) => Crypto.findById(cryptoId)//.populate('owner');
 
 exports.delete = (cryptoId) => Crypto.findByIdAndDelete(cryptoId);
 
