@@ -18,7 +18,6 @@ router.get('/create', isAuth, (req, res) => {
 router.post('/create', isAuth, async (req, res) => {
     const cryptoData = req.body;
    
-   
     try {
         await cryptoManager.create(req.user._id, cryptoData);
 
@@ -32,11 +31,15 @@ router.post('/create', isAuth, async (req, res) => {
 
 router.get('/:cryptoId/details', async (req, res) => {
     const cryptoId = req.params.cryptoId;
-    const crypto = await cryptoManager.getOne(cryptoId).lean();
+    
+    const crypto = await cryptoManager.getOne(cryptoId);
    
     const isOwner = req.user?._id == crypto.owner;
+    const isBuyer = crypto.buyers.some(id => id == req.user?._id);
 
-    res.render('crypto/details', { crypto, isOwner });
+
+    res.render('crypto/details', { crypto, isOwner, isBuyer });
+    
 });
 
 router.get('/:cryptoId/delete', isAuth,async (req, res) => {
@@ -52,7 +55,7 @@ router.get('/:cryptoId/delete', isAuth,async (req, res) => {
 });
 
 router.get('/:cryptoId/edit', isAuth, async (req, res) => {
-    const crypto = await cryptoManager.getOne(req.params.cryptoId).lean();
+    const crypto = await cryptoManager.getOne(req.params.cryptoId);
 
     res.render('crypto/edit', { crypto });
 });
@@ -60,8 +63,7 @@ router.get('/:cryptoId/edit', isAuth, async (req, res) => {
 router.post('/:cryptoId/edit', isAuth, async (req, res) => {
     const cryptoId = req.params.cryptoId;
     const cryptoData = req.body;
-   console.log(cryptoId);
-   console.log(cryptoData);
+  
     try {
         await cryptoManager.edit(cryptoId, cryptoData);
         res.redirect(`/crypto/${cryptoId}/details`);
@@ -70,23 +72,23 @@ router.post('/:cryptoId/edit', isAuth, async (req, res) => {
     }
 });
 
-router.get('/search', isAuth, (req, res) => {
-    res.render('crypto/search');
+router.get('/search', isAuth, async (req, res) => {
+    const { name, paymentMethod } = req.query;
+    const crypto = await cryptoManager.search(name, paymentMethod);
+
+    //const crypto = await cryptoManager.getAll().lean();
+
+    res.render('crypto/search', { crypto });
 });
 
-// router.post('/:photoId/comments', isAuth, async (req, res) => {
-//     const photoId = req.params.photoId;
+router.get('/:cryptoId/buy', isAuth, async (req, res) => {
+    const userId = req.user._id;
+    const cryptoId = req.params.cryptoId;
 
-//     const { message } = req.body;
-//     const user = req.user._id;
+    await cryptoManager.buy(userId, cryptoId);
 
-//     try {
-//         await cryptoManager.addComment(photoId, { user, message });
+    res.redirect(`/crypto/${cryptoId}/details`);
 
-//         res.redirect(`/photos/${photoId}/details`);
-//     } catch (error) {
-        
-//     }
-// })
+})
 
 module.exports = router;

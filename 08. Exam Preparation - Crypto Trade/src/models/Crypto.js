@@ -10,19 +10,19 @@ const cryptoSchema = new mongoose.Schema({
     image: {
         type: String,
         required: [true, 'ImageUrl is required!'],
-        match: [/^https?:\/\//, 'Invalid URL']
+        
     },
     price: {
         type: Number,
         required: [true, 'Price is required!'],
-        min: 1,
-        max: 100,
+        min: 0,
+        
     },
     description: {
         type: String,
         required: [true, 'Description is required!'],
-        minLength: 5,
-        maxLength: 50,
+        minLength: 10,
+       
     },
     payment: {
         type: String,
@@ -33,12 +33,13 @@ const cryptoSchema = new mongoose.Schema({
      owner: {
          type: mongoose.Types.ObjectId,
          ref: 'User',
-     },
-    // buy: {
-    //     type: [],
-    //     ref: 'User',
-
-    // },
+    },
+    buyers: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: 'User',
+        }
+    ]
    
 });
 
