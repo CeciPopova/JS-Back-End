@@ -21,7 +21,6 @@ router.post('/login', async (req, res, next) => {
     } catch (err) {
         res.render('users/login', { error: getErrorMessage(err) });
 
-        //next(err);
     }
     
 });

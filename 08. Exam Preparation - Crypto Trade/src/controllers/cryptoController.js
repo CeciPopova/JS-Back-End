@@ -4,6 +4,7 @@ const cryptoManager = require('../managers/cryptoManager');
 
 const { getErrorMessage } = require('../utils/errorHelpers');
 const { isAuth } = require('../middlewares/authMiddleware');
+const { paymentMethodMap } = require('../config/config');
 
 router.get('/catalog', async (req, res) => {
 
@@ -35,14 +36,14 @@ router.get('/:cryptoId/details', async (req, res) => {
     const crypto = await cryptoManager.getOne(cryptoId);
    
     const isOwner = req.user?._id == crypto.owner;
-    const isBuyer = crypto.buyers.some(id => id == req.user?._id);
+    const isBuyer = crypto.buyers?.some(id => id == req.user?._id);
 
 
     res.render('crypto/details', { crypto, isOwner, isBuyer });
     
 });
 
-router.get('/:cryptoId/delete', isAuth,async (req, res) => {
+router.get('/:cryptoId/delete', isAuth, async (req, res) => {
     const cryptoId = req.params.cryptoId;
 
     try {
@@ -57,7 +58,15 @@ router.get('/:cryptoId/delete', isAuth,async (req, res) => {
 router.get('/:cryptoId/edit', isAuth, async (req, res) => {
     const crypto = await cryptoManager.getOne(req.params.cryptoId);
 
-    res.render('crypto/edit', { crypto });
+    const paymentMethods = Object.keys(paymentMethodMap).map(key => (
+        {
+            value: key,
+            label: paymentMethodMap[key],
+            isSelected: crypto.paymentMethod == key,
+        }
+    ));
+
+    res.render('crypto/edit', { crypto , paymentMethods});
 });
 
 router.post('/:cryptoId/edit', isAuth, async (req, res) => {
@@ -77,8 +86,15 @@ router.get('/search', isAuth, async (req, res) => {
     const crypto = await cryptoManager.search(name, paymentMethod);
 
     //const crypto = await cryptoManager.getAll().lean();
+    const paymentMethods = Object.keys(paymentMethodMap).map(key => (
+        {
+            value: key,
+            label: paymentMethodMap[key],
+            isSelected: crypto.paymentMethod == key,
+        }
+    ));
 
-    res.render('crypto/search', { crypto });
+    res.render('crypto/search', { crypto, paymentMethods, name });
 });
 
 router.get('/:cryptoId/buy', isAuth, async (req, res) => {

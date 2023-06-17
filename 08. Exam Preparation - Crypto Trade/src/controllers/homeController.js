@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const cryptoManager = require('../managers/cryptoManager');
 
-const { isAuth } = require('../middlewares/authMiddleware');
+
 
 router.get('/', async (req, res) => {
     //console.log(req.user);
